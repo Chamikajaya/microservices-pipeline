@@ -40,15 +40,7 @@ resource "aws_security_group" "ec2" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # SonarQube access
-  ingress {
-    description = "SonarQube from anywhere"
-    from_port   = 9000
-    to_port     = 9000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
+ 
   # Allow all outbound traffic
   egress {
     description = "Allow all outbound traffic"
@@ -73,7 +65,8 @@ resource "aws_instance" "main" {
   subnet_id              = var.public_subnet_id
   vpc_security_group_ids = [aws_security_group.ec2.id]
 
-  user_data = templatefile("./install-tools.sh", {})
+  user_data = file("${path.module}/install-tools.sh")
+
 
   # Root volume configuration
   root_block_device {
