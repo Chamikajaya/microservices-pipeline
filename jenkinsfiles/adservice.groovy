@@ -56,7 +56,7 @@ pipeline {
         stage('Update Deployment file') {
             steps {
                 dir('k8s') {
-                    withCredentials([string(credentialsId: 'github-pat', variable: 'git_token')]) {
+                    withCredentials([usernamePassword(credentialsId: 'github-pat', usernameVariable: 'GIT_USERNAME', passwordVariable: 'git_token')]) {
                         sh '''
                             echo "Configuring Git user..."
                             git config user.email "${GIT_EMAIL}"
