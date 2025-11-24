@@ -59,9 +59,10 @@ module "eks" {
   cluster_role_arn = module.iam.eks_cluster_role_arn
   worker_role_arn  = module.iam.eks_worker_role_arn
 
-  # Use public subnets for EKS cluster
+  
+  # * currently creating the control plane in public subnets and worker nodes in private subnets
   subnet_ids            = module.vpc.public_subnet_ids
-  node_group_subnet_ids = module.vpc.public_subnet_ids
+  node_group_subnet_ids = module.vpc.private_subnet_ids
 
   kubernetes_version = var.eks_kubernetes_version
   instance_types     = var.eks_instance_types

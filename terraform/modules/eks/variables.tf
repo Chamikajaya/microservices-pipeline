@@ -23,12 +23,6 @@ variable "subnet_ids" {
   type        = list(string)
 }
 
-variable "security_group_ids" {
-  description = "List of security group IDs for EKS cluster"
-  type        = list(string)
-  default     = []
-}
-
 variable "node_group_subnet_ids" {
   description = "List of subnet IDs for EKS node group"
   type        = list(string)
@@ -37,7 +31,7 @@ variable "node_group_subnet_ids" {
 variable "kubernetes_version" {
   description = "Kubernetes version for EKS cluster"
   type        = string
-  default     = "1.27"
+  default     = "1.31"
 }
 
 variable "endpoint_private_access" {
@@ -61,7 +55,7 @@ variable "public_access_cidrs" {
 variable "enabled_cluster_log_types" {
   description = "List of control plane logging types to enable"
   type        = list(string)
-  default     = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+  default     = ["api", "audit"]
 }
 
 # Node Group Variables

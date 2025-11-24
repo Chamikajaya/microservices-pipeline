@@ -7,8 +7,7 @@ resource "aws_eks_cluster" "main" {
   version  = var.kubernetes_version
 
   vpc_config {
-    subnet_ids              = var.subnet_ids
-    security_group_ids      = var.security_group_ids
+    subnet_ids              = var.subnet_ids  # * creating master nodes in public subnets - dev
     endpoint_private_access = var.endpoint_private_access
     endpoint_public_access  = var.endpoint_public_access
     public_access_cidrs     = var.public_access_cidrs
@@ -33,7 +32,7 @@ resource "aws_eks_node_group" "main" {
   cluster_name    = aws_eks_cluster.main.name
   node_group_name = "${var.project_name}-${var.environment}-node-group"
   node_role_arn   = var.worker_role_arn
-  subnet_ids      = var.node_group_subnet_ids
+  subnet_ids      = var.node_group_subnet_ids  # * creating worker nodes in private subnets 
 
   capacity_type  = var.capacity_type
   disk_size      = var.disk_size
