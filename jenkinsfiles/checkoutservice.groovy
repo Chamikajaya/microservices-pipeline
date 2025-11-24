@@ -5,9 +5,9 @@ pipeline {
         GIT_REPO_NAME = "microservices-pipeline"
         GIT_EMAIL = "chamika.21@cse.mrt.ac.lk"
         GIT_USER_NAME = "Chamikajaya"
-        IMAGE_NAME = "cartservice"
-        REPO_URL = "497237776404.dkr.ecr.ap-south-1.amazonaws.com/devops-microservices-dev-cartservice"
-        YAML_FILE = "cartservice.yaml"
+        IMAGE_NAME = "checkoutservice"
+        REPO_URL = "497237776404.dkr.ecr.ap-south-1.amazonaws.com/devops-microservices-dev-checkoutservice"
+        YAML_FILE = "checkoutservice.yaml"
     }
 
     stages {
@@ -26,10 +26,10 @@ pipeline {
         stage("Build Docker Image") {
             steps {
                 script {
-                    dir("src/cartservice") {
+                    dir("src/checkoutservice") {
                         sh 'docker system prune -f'
                         sh 'docker container prune -f'
-                        sh 'docker build -t cartservice .'
+                        sh 'docker build -t checkoutservice .'
                     }
                 }
             }
@@ -44,7 +44,7 @@ pipeline {
                     ]) {
                         sh '''
                         aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 497237776404.dkr.ecr.ap-south-1.amazonaws.com
-                        docker tag cartservice:latest ${REPO_URL}:${BUILD_NUMBER}
+                        docker tag checkoutservice:latest ${REPO_URL}:${BUILD_NUMBER}
                         docker push ${REPO_URL}:${BUILD_NUMBER}
                         '''
                     }
