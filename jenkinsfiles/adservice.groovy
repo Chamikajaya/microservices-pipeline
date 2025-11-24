@@ -35,20 +35,22 @@ pipeline {
             }
         }
 
-
-stage("ECR Image Pushing") {
-    steps {
-        script {
-            withAWS(credentials: 'aws-credentials', region: 'ap-south-1') {
-                sh '''
-                aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 497237776404.dkr.ecr.ap-south-1.amazonaws.com
-                docker tag adservice:latest ${REPO_URL}:${BUILD_NUMBER}
-                docker push ${REPO_URL}:${BUILD_NUMBER}
-                '''
+        stage("ECR Image Pushing") {
+            steps {
+                script {
+                    withCredentials([
+                        string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
+                        string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
+                    ]) {
+                        sh '''
+                        aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 497237776404.dkr.ecr.ap-south-1.amazonaws.com
+                        docker tag adservice:latest ${REPO_URL}:${BUILD_NUMBER}
+                        docker push ${REPO_URL}:${BUILD_NUMBER}
+                        '''
+                    }
+                }
             }
         }
-    }
-}
 
         // implementing gitops -> updates k8s deployment manifest in Git, which triggers ArgoCD to deploy the new image automatically
         stage('Update Deployment file') {
