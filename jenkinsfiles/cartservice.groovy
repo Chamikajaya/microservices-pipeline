@@ -26,7 +26,7 @@ pipeline {
         stage("Build Docker Image") {
             steps {
                 script {
-                    dir("src/cartservice") {
+                    dir("src/cartservice/src") {
                         sh 'docker system prune -f'
                         sh 'docker container prune -f'
                         sh 'docker build -t cartservice .'
