@@ -88,6 +88,5 @@ module "ecr" {
   force_delete             = var.ecr_force_delete
   enable_lifecycle_policy  = var.ecr_enable_lifecycle_policy
   max_image_count          = var.ecr_max_image_count
-  enable_cross_account_access = var.ecr_enable_cross_account_access
-  allowed_account_ids      = var.ecr_allowed_account_ids
+ 
 }

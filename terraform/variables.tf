@@ -157,15 +157,3 @@ variable "ecr_max_image_count" {
   type        = number
   default     = 10
 }
-
-variable "ecr_enable_cross_account_access" {
-  description = "Enable cross-account access to ECR repositories"
-  type        = bool
-  default     = false
-}
-
-variable "ecr_allowed_account_ids" {
-  description = "List of AWS account IDs allowed to pull ECR images"
-  type        = list(string)
-  default     = []
-}

@@ -13,7 +13,6 @@ resource "aws_ecr_repository" "services" {
 
   encryption_configuration {
     encryption_type = var.encryption_type
-    kms_key         = var.kms_key_arn
   }
 
   # Delete all images before deleting the repository
@@ -48,33 +47,6 @@ resource "aws_ecr_lifecycle_policy" "services" {
         action = {
           type = "expire"
         }
-      }
-    ]
-  })
-}
-
-# ----------------------------
-# ECR Repository Policy (Optional)
-# ----------------------------
-resource "aws_ecr_repository_policy" "services" {
-  for_each = var.enable_cross_account_access ? toset(var.services) : []
-
-  repository = aws_ecr_repository.services[each.key].name
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "AllowPull"
-        Effect = "Allow"
-        Principal = {
-          AWS = var.allowed_account_ids
-        }
-        Action = [
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage",
-          "ecr:BatchCheckLayerAvailability"
-        ]
       }
     ]
   })
