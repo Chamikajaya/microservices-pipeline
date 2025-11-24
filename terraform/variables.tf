@@ -65,3 +65,107 @@ variable "allowed_ssh_cidr" {
   type        = string
   default     = "0.0.0.0/0" 
 }
+
+# EKS Variables
+variable "eks_kubernetes_version" {
+  description = "Kubernetes version for EKS cluster"
+  type        = string
+  default     = "1.27"
+}
+
+variable "eks_instance_types" {
+  description = "Instance types for EKS node group"
+  type        = list(string)
+  default     = ["t2.large"]
+}
+
+variable "eks_desired_size" {
+  description = "Desired number of worker nodes in EKS node group"
+  type        = number
+  default     = 2
+}
+
+variable "eks_max_size" {
+  description = "Maximum number of worker nodes in EKS node group"
+  type        = number
+  default     = 10
+}
+
+variable "eks_min_size" {
+  description = "Minimum number of worker nodes in EKS node group"
+  type        = number
+  default     = 1
+}
+
+variable "eks_disk_size" {
+  description = "Disk size in GiB for EKS worker nodes"
+  type        = number
+  default     = 20
+}
+
+# ECR Variables
+variable "ecr_services" {
+  description = "List of microservice names for ECR repositories"
+  type        = list(string)
+  default = [
+    "emailservice",
+    "checkoutservice",
+    "recommendationservice",
+    "frontend",
+    "paymentservice",
+    "productcatalogservice",
+    "cartservice",
+    "loadgenerator",
+    "currencyservice",
+    "shippingservice",
+    "adservice"
+  ]
+}
+
+variable "ecr_image_tag_mutability" {
+  description = "Tag mutability setting for ECR repositories"
+  type        = string
+  default     = "MUTABLE"
+}
+
+variable "ecr_scan_on_push" {
+  description = "Enable image scanning on push for ECR repositories"
+  type        = bool
+  default     = true
+}
+
+variable "ecr_encryption_type" {
+  description = "Encryption type for ECR repositories"
+  type        = string
+  default     = "AES256"
+}
+
+variable "ecr_force_delete" {
+  description = "Delete all images before deleting ECR repositories"
+  type        = bool
+  default     = true
+}
+
+variable "ecr_enable_lifecycle_policy" {
+  description = "Enable lifecycle policy for ECR repositories"
+  type        = bool
+  default     = true
+}
+
+variable "ecr_max_image_count" {
+  description = "Maximum number of images to retain in ECR repositories"
+  type        = number
+  default     = 10
+}
+
+variable "ecr_enable_cross_account_access" {
+  description = "Enable cross-account access to ECR repositories"
+  type        = bool
+  default     = false
+}
+
+variable "ecr_allowed_account_ids" {
+  description = "List of AWS account IDs allowed to pull ECR images"
+  type        = list(string)
+  default     = []
+}
