@@ -4,7 +4,7 @@ pipeline {
     environment {
         GIT_REPO_NAME = "microservices-pipeline"
         GIT_EMAIL = "chamika.21@cse.mrt.ac.lk"
-        GIT_USER_NAME = "jenkins-ec2"
+        GIT_USER_NAME = "Chamikajaya"
         IMAGE_NAME = "adservice"
         REPO_URL = "497237776404.dkr.ecr.ap-south-1.amazonaws.com/devops-microservices-dev-adservice"
         YAML_FILE = "adservice.yaml"
