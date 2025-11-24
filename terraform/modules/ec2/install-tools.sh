@@ -102,23 +102,6 @@ sudo systemctl start docker && check_status "Docker start"
 sudo chmod 777 /var/run/docker.sock && check_status "Docker socket permissions"
 sudo docker --version && check_status "Docker verification"
 
-# Install Docker Compose
-echo "Installing Docker Compose..."
-sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && check_status "Docker Compose download"
-sudo chmod +x /usr/local/bin/docker-compose && check_status "Docker Compose chmod"
-sudo docker-compose --version && check_status "Docker Compose verification"
-
-# Run SonarQube using Docker
-echo "Running SonarQube..."
-sudo docker run -d --name sonar -p 9000:9000 sonarqube:lts-community && check_status "SonarQube container start"
-sleep 5
-sudo docker ps | grep sonar && check_status "SonarQube container verification"
-
-# Install Trivy
-echo "Installing Trivy..."
-sudo rpm -ivh https://github.com/aquasecurity/trivy/releases/download/v0.48.3/trivy_0.48.3_Linux-64bit.rpm && check_status "Trivy installation"
-trivy --version && check_status "Trivy verification"
-
 echo "======================================"
 echo "Installation completed at: $(date)"
 echo "Log file available at: ${LOGFILE}"

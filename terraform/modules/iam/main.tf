@@ -1,5 +1,5 @@
 # ----------------------------
-# IAM Role for EKS Cluster
+# IAM Role for EKS Cluster --> This role is assumed by the EKS control plane
 # ----------------------------
 resource "aws_iam_role" "eks_cluster" {
   name = "${var.project_name}-${var.environment}-eks-cluster-role"
@@ -9,7 +9,7 @@ resource "aws_iam_role" "eks_cluster" {
     Statement = [{
       Effect = "Allow",
       Principal = {
-        Service = "eks.amazonaws.com"
+        Service = "eks.amazonaws.com"  // Only EKS service can assume this
       },
       Action = "sts:AssumeRole"
     }]
@@ -27,18 +27,9 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
   role       = aws_iam_role.eks_cluster.name
 }
 
-resource "aws_iam_role_policy_attachment" "eks_service_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
-  role       = aws_iam_role.eks_cluster.name
-}
-
-resource "aws_iam_role_policy_attachment" "eks_vpc_resource_controller" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
-  role       = aws_iam_role.eks_cluster.name
-}
 
 # ----------------------------
-# IAM Role for Worker Nodes
+# IAM Role for Worker Nodes -> assumed by EC2 instances in the EKS cluster that serve as worker nodes
 # ----------------------------
 resource "aws_iam_role" "eks_worker" {
   name = "${var.project_name}-${var.environment}-eks-worker-role"
@@ -61,37 +52,9 @@ resource "aws_iam_role" "eks_worker" {
   }
 }
 
-# Custom autoscaler policy
-resource "aws_iam_policy" "autoscaler" {
-  name        = "${var.project_name}-${var.environment}-eks-autoscaler-policy"
-  description = "IAM policy for EKS cluster autoscaler"
 
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Action = [
-        "autoscaling:DescribeAutoScalingGroups",
-        "autoscaling:DescribeAutoScalingInstances",
-        "autoscaling:DescribeTags",
-        "autoscaling:DescribeLaunchConfigurations",
-        "autoscaling:SetDesiredCapacity",
-        "autoscaling:TerminateInstanceInAutoScalingGroup",
-        "ec2:DescribeLaunchTemplateVersions"
-      ],
-      Effect   = "Allow",
-      Resource = "*"
-    }]
-  })
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-autoscaler-policy"
-    Environment = var.environment
-    Project     = var.project_name
-  }
-}
-
-# Attach policies to worker role
-resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {
+# Attach policies to worker role 
+resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {  # allows worker nodes to join the cluster
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
   role       = aws_iam_role.eks_worker.name
 }
@@ -114,21 +77,4 @@ resource "aws_iam_role_policy_attachment" "ecr_read_only" {
 resource "aws_iam_role_policy_attachment" "s3_read_only" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
   role       = aws_iam_role.eks_worker.name
-}
-
-resource "aws_iam_role_policy_attachment" "autoscaler_policy" {
-  policy_arn = aws_iam_policy.autoscaler.arn
-  role       = aws_iam_role.eks_worker.name
-}
-
-# Instance profile for worker nodes
-resource "aws_iam_instance_profile" "eks_worker" {
-  name = "${var.project_name}-${var.environment}-eks-worker-profile"
-  role = aws_iam_role.eks_worker.name
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-eks-worker-profile"
-    Environment = var.environment
-    Project     = var.project_name
-  }
 }

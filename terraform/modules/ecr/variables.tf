@@ -1,81 +1,81 @@
-# ----------------------------
-# ECR Repositories for Microservices
-# ----------------------------
-resource "aws_ecr_repository" "services" {
-  for_each = toset(var.services)
-
-  name                 = "${var.project_name}-${var.environment}-${each.value}"
-  image_tag_mutability = var.image_tag_mutability
-
-  image_scanning_configuration {
-    scan_on_push = var.scan_on_push
-  }
-
-  encryption_configuration {
-    encryption_type = var.encryption_type
-    kms_key         = var.kms_key_arn
-  }
-
-  # Delete all images before deleting the repository
-  force_delete = var.force_delete
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-${each.value}"
-    Environment = var.environment
-    Project     = var.project_name
-    Service     = each.value
-  }
+variable "project_name" {
+  description = "Project name for resource tagging"
+  type        = string
 }
 
-# ----------------------------
-# Lifecycle Policy for ECR Repositories
-# ----------------------------
-resource "aws_ecr_lifecycle_policy" "services" {
-  for_each = var.enable_lifecycle_policy ? toset(var.services) : []
-
-  repository = aws_ecr_repository.services[each.key].name
-
-  policy = jsonencode({
-    rules = [
-      {
-        rulePriority = 1
-        description  = "Keep last ${var.max_image_count} images"
-        selection = {
-          tagStatus     = "any"
-          countType     = "imageCountMoreThan"
-          countNumber   = var.max_image_count
-        }
-        action = {
-          type = "expire"
-        }
-      }
-    ]
-  })
+variable "environment" {
+  description = "Environment name (dev, staging, prod)"
+  type        = string
 }
 
-# ----------------------------
-# ECR Repository Policy (Optional)
-# ----------------------------
-resource "aws_ecr_repository_policy" "services" {
-  for_each = var.enable_cross_account_access ? toset(var.services) : []
+variable "services" {
+  description = "List of microservice names for ECR repositories"
+  type        = list(string)
+  default = [
+    "emailservice",
+    "checkoutservice",
+    "recommendationservice",
+    "frontend",
+    "paymentservice",
+    "productcatalogservice",
+    "cartservice",
+    "loadgenerator",
+    "currencyservice",
+    "shippingservice",
+    "adservice"
+  ]
+}
 
-  repository = aws_ecr_repository.services[each.key].name
+variable "image_tag_mutability" {
+  description = "Tag mutability setting for the repository (MUTABLE or IMMUTABLE)"
+  type        = string
+  default     = "MUTABLE"
+}
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "AllowPull"
-        Effect = "Allow"
-        Principal = {
-          AWS = var.allowed_account_ids
-        }
-        Action = [
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage",
-          "ecr:BatchCheckLayerAvailability"
-        ]
-      }
-    ]
-  })
+variable "scan_on_push" {
+  description = "Enable image scanning on push"
+  type        = bool
+  default     = true
+}
+
+variable "encryption_type" {
+  description = "Encryption type for ECR repositories (AES256 or KMS)"
+  type        = string
+  default     = "AES256"
+}
+
+variable "kms_key_arn" {
+  description = "KMS key ARN for ECR encryption (required if encryption_type is KMS)"
+  type        = string
+  default     = null
+}
+
+variable "force_delete" {
+  description = "Delete all images before deleting the repository"
+  type        = bool
+  default     = true
+}
+
+variable "enable_lifecycle_policy" {
+  description = "Enable lifecycle policy for ECR repositories"
+  type        = bool
+  default     = true
+}
+
+variable "max_image_count" {
+  description = "Maximum number of images to retain in ECR repository"
+  type        = number
+  default     = 10
+}
+
+variable "enable_cross_account_access" {
+  description = "Enable cross-account access to ECR repositories"
+  type        = bool
+  default     = false
+}
+
+variable "allowed_account_ids" {
+  description = "List of AWS account IDs allowed to pull images"
+  type        = list(string)
+  default     = []
 }
